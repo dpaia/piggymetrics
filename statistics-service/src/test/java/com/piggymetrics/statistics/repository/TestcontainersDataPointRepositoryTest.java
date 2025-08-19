@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DataPointRepositoryTest extends MongoTestBase {
+public class TestcontainersDataPointRepositoryTest extends MongoTestBase {
 
 	@Autowired
 	private DataPointRepository repository;
