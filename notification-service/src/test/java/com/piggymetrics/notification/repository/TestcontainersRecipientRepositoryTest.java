@@ -13,11 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class RecipientRepositoryTest extends MongoTestBase {
+public class TestcontainersRecipientRepositoryTest extends MongoTestBase {
 
 	@Autowired
 	private RecipientRepository repository;

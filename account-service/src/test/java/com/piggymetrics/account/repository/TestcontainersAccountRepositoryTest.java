@@ -1,10 +1,6 @@
 package com.piggymetrics.account.repository;
 
-import com.piggymetrics.account.domain.Account;
-import com.piggymetrics.account.domain.Currency;
-import com.piggymetrics.account.domain.Item;
-import com.piggymetrics.account.domain.Saving;
-import com.piggymetrics.account.domain.TimePeriod;
+import com.piggymetrics.account.domain.*;
 import com.piggymetrics.test.MongoTestBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +11,7 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AccountRepositoryTest extends MongoTestBase {
+public class TestcontainersAccountRepositoryTest extends MongoTestBase {
 
 	@Autowired
 	private AccountRepository repository;
