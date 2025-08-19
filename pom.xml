@@ -19,6 +19,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-cloud.version>Hoxton.RELEASE</spring-cloud.version>
 		<java.version>13</java.version>
+		<maven.compiler.source>13</maven.compiler.source>
+		<maven.compiler.target>13</maven.compiler.target>
+		<testcontainers.version>1.21.3</testcontainers.version>
 	</properties>
 
 	<dependencyManagement>
@@ -30,10 +33,36 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>testcontainers-bom</artifactId>
+				<version>${testcontainers.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.11.0</version>
+				<configuration>
+					<source>13</source>
+					<target>13</target>
+					<release>13</release>
+					<testSource>13</testSource>
+					<testTarget>13</testTarget>
+					<testRelease>13</testRelease>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 	
 	<modules>
+		<module>test-common</module>
 		<module>config</module>
 		<module>monitoring</module>
 		<module>registry</module>
