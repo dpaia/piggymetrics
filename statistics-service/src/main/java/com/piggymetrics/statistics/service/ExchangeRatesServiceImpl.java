@@ -7,20 +7,18 @@ import com.piggymetrics.statistics.domain.ExchangeRatesContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.util.Map;
 
 @Service
 public class ExchangeRatesServiceImpl implements ExchangeRatesService {
 
 	private static final Logger log = LoggerFactory.getLogger(ExchangeRatesServiceImpl.class);
-
-	private ExchangeRatesContainer container;
 
 	@Autowired
 	private ExchangeRatesClient client;
@@ -29,12 +27,12 @@ public class ExchangeRatesServiceImpl implements ExchangeRatesService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Cacheable(value = "exchangeRates", key = "#root.methodName")
 	public Map<Currency, BigDecimal> getCurrentRates() {
+		log.debug("getCurrentRates called - fetching from external service");
 
-		if (container == null || !container.getDate().equals(LocalDate.now())) {
-			container = client.getRates(Currency.getBase());
-			log.info("exchange rates has been updated: {}", container);
-		}
+		ExchangeRatesContainer container = client.getRates(Currency.getBase());
+		log.info("exchange rates has been updated: {}", container);
 
 		return ImmutableMap.of(
 				Currency.EUR, container.getRates().get(Currency.EUR.name()),
