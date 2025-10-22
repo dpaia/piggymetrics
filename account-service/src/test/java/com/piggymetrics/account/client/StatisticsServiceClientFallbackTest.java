@@ -6,15 +6,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.rule.OutputCapture;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author cdov
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, OutputCaptureExtension.class})
 @SpringBootTest(properties = {
         "feign.hystrix.enabled=true"
 })
@@ -22,19 +23,11 @@ public class StatisticsServiceClientFallbackTest {
     @Autowired
     private StatisticsServiceClient statisticsServiceClient;
 
-    private final OutputCapture outputCapture = new OutputCapture();
-
-    @BeforeEach
-    public void setup() {
-        outputCapture.reset();
-    }
-
     @Test
-    public void testUpdateStatisticsWithFailFallback(){
+    public void testUpdateStatisticsWithFailFallback(CapturedOutput output){
         statisticsServiceClient.updateStatistics("test", new Account());
 
-        outputCapture.expect(containsString("Error during update statistics for account: test"));
-
+        assertThat(output).contains("Error during update statistics for account: test");
     }
 
 }
