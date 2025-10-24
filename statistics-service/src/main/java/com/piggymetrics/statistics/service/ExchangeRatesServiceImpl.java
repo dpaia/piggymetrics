@@ -33,7 +33,7 @@ public class ExchangeRatesServiceImpl implements ExchangeRatesService {
 
 		if (container == null || !container.getDate().equals(LocalDate.now())) {
 			container = client.getRates(Currency.getBase());
-			log.info("exchange rates has been updated: {}", container);
+		log.info("exchange rates has been updated: {}", container);
 		}
 
 		return ImmutableMap.of(

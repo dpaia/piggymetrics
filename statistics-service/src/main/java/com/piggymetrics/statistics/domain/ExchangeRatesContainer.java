@@ -11,7 +11,7 @@ public class ExchangeRatesContainer {
 
 	private LocalDate date = LocalDate.now();
 
-	private Currency base;
+	private Currency base = Currency.getBase();
 
 	private Map<String, BigDecimal> rates;
 

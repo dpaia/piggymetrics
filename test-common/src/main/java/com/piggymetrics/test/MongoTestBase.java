@@ -32,7 +32,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * </pre>
  */
 @DataMongoTest
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 public abstract class MongoTestBase {
 
 	@Container

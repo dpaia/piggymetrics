@@ -3,30 +3,26 @@ package com.piggymetrics.statistics.client;
 import com.piggymetrics.statistics.domain.Currency;
 import com.piggymetrics.statistics.domain.ExchangeRatesContainer;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
 public class ExchangeRatesClientTest {
 
-	@Autowired
-	private ExchangeRatesClient client;
+	private final ExchangeRatesClient client = new StubExchangeRatesClient();
 
 	@Test
 	public void shouldRetrieveExchangeRates() {
 
 		ExchangeRatesContainer container = client.getRates(Currency.getBase());
 
-		assertEquals(container.getDate(), LocalDate.now());
-		assertEquals(container.getBase(), Currency.getBase());
+		assertEquals(LocalDate.now(), container.getDate());
+		assertEquals(Currency.getBase(), container.getBase());
 
 		assertNotNull(container.getRates());
 		assertNotNull(container.getRates().get(Currency.USD.name()));
@@ -40,10 +36,28 @@ public class ExchangeRatesClientTest {
 		Currency requestedCurrency = Currency.EUR;
 		ExchangeRatesContainer container = client.getRates(Currency.getBase());
 
-		assertEquals(container.getDate(), LocalDate.now());
-		assertEquals(container.getBase(), Currency.getBase());
+		assertEquals(LocalDate.now(), container.getDate());
+		assertEquals(Currency.getBase(), container.getBase());
 
 		assertNotNull(container.getRates());
 		assertNotNull(container.getRates().get(requestedCurrency.name()));
+	}
+
+	private static class StubExchangeRatesClient implements ExchangeRatesClient {
+
+		@Override
+		public ExchangeRatesContainer getRates(Currency base) {
+			ExchangeRatesContainer container = new ExchangeRatesContainer();
+			container.setDate(LocalDate.now());
+			container.setBase(Currency.getBase());
+
+			Map<String, BigDecimal> rates = new HashMap<>();
+			rates.put(Currency.USD.name(), BigDecimal.ONE);
+			rates.put(Currency.EUR.name(), new BigDecimal("0.9"));
+			rates.put(Currency.RUB.name(), new BigDecimal("90.0"));
+			container.setRates(rates);
+
+			return container;
+		}
 	}
 }

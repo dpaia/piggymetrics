@@ -6,8 +6,14 @@ import com.piggymetrics.statistics.domain.Currency;
 import com.piggymetrics.statistics.domain.ExchangeRatesContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -15,20 +21,31 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@SpringJUnitConfig(ExchangeRatesServiceImplTest.TestConfig.class)
 public class ExchangeRatesServiceImplTest {
 
-	@InjectMocks
-	private ExchangeRatesServiceImpl ratesService;
+	@Autowired
+	private ExchangeRatesService ratesService;
 
-	@Mock
+	@Autowired
 	private ExchangeRatesClient client;
+
+	@Autowired
+	private CacheManager cacheManager;
+
+	private Cache exchangeRatesCache;
 
 	@BeforeEach
 	public void setup() {
-		initMocks(this);
+		reset(client);
+		exchangeRatesCache = cacheManager.getCache("exchangeRates");
+		assertNotNull(exchangeRatesCache, "exchangeRates cache should be available");
+		exchangeRatesCache.clear();
+		assertNull(exchangeRatesCache.get("getCurrentRates"));
 	}
 
 	@Test
@@ -53,21 +70,21 @@ public class ExchangeRatesServiceImplTest {
 	@Test
 	public void shouldNotRequestRatesWhenTodaysContainerAlreadyExists() {
 
-		ExchangeRatesContainer container = new ExchangeRatesContainer();
-		container.setRates(ImmutableMap.of(
-				Currency.EUR.name(), new BigDecimal("0.8"),
-				Currency.RUB.name(), new BigDecimal("80")
-		));
+		Map<Currency, BigDecimal> cachedValue = ImmutableMap.of(
+				Currency.EUR, new BigDecimal("0.8"),
+				Currency.RUB, new BigDecimal("80"),
+				Currency.USD, BigDecimal.ONE
+		);
 
-		when(client.getRates(Currency.getBase())).thenReturn(container);
+		exchangeRatesCache.put("getCurrentRates", cachedValue);
+		clearInvocations(client);
+		doThrow(new AssertionError("ExchangeRatesClient should not be used when cache already holds today's data"))
+				.when(client).getRates(any());
 
-		// initialize container
-		ratesService.getCurrentRates();
+		Map<Currency, BigDecimal> cachedRates = ratesService.getCurrentRates();
 
-		// use existing container
-		ratesService.getCurrentRates();
-
-		verify(client, times(1)).getRates(Currency.getBase());
+		verifyNoInteractions(client);
+		assertEquals(cachedValue, cachedRates);
 	}
 
 	@Test
@@ -94,5 +111,25 @@ public class ExchangeRatesServiceImplTest {
 		assertThrows(IllegalArgumentException.class, () -> {
 			ratesService.convert(Currency.EUR, Currency.RUB, null);
 		});
+	}
+
+	@Configuration
+	@EnableCaching
+	static class TestConfig {
+
+		@Bean
+		CacheManager cacheManager() {
+			return new ConcurrentMapCacheManager("exchangeRates");
+		}
+
+		@Bean
+		ExchangeRatesClient exchangeRatesClient() {
+			return mock(ExchangeRatesClient.class);
+		}
+
+		@Bean
+		ExchangeRatesService exchangeRatesService(ExchangeRatesClient client) {
+			return new ExchangeRatesServiceImpl();
+		}
 	}
 }
