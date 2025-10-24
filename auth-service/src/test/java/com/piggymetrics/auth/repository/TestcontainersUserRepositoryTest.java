@@ -1,18 +1,16 @@
 package com.piggymetrics.auth.repository;
 
 import com.piggymetrics.auth.domain.User;
-import com.piggymetrics.auth.service.security.MongoUserDetailsService;
 import com.piggymetrics.test.MongoTestBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UserRepositoryTest extends MongoTestBase {
+public class TestcontainersUserRepositoryTest extends MongoTestBase {
 
 	@Autowired
 	private UserRepository repository;
