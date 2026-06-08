@@ -5,7 +5,12 @@
   "jvm_version": "17",
   "build_system": "maven",
   "expected": {
-    "fail_to_pass": [],
+    "fail_to_pass": [
+      "statistics-service:com.piggymetrics.statistics.repository.TestcontainersDataPointRepositoryTest",
+      "account-service:com.piggymetrics.account.repository.TestcontainersAccountRepositoryTest",
+      "notification-service:com.piggymetrics.notification.repository.TestcontainersRecipientRepositoryTest",
+      "auth-service:com.piggymetrics.auth.repository.TestcontainersUserRepositoryTest"
+    ],
     "pass_to_pass": []
   },
   "environment": {
