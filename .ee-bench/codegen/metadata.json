@@ -2,7 +2,7 @@
   "version": "1.0",
   "benchmark_type": "codegen",
   "language": "java",
-  "jvm_version": "8",
+  "jvm_version": "17",
   "build_system": "maven",
   "expected": {
     "fail_to_pass": [],
