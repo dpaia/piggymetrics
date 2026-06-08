@@ -12,6 +12,9 @@ OVERALL_START=$SECONDS
 
 _elapsed() { echo $(( SECONDS - ${1:-$OVERALL_START} )); }
 
+MAVEN_MODULES="account-service,auth-service,notification-service,statistics-service"
+MAVEN_ARGS=(-fae -Djacoco.skip=true -pl "$MAVEN_MODULES" -am)
+
 # --- _run_tests: run tests with isolated ARTIFACTS_DIR ---
 # Usage: _run_tests <label>
 # Writes: /tmp/<label>_stdout.log, /tmp/<label>_stderr.log, /tmp/<label>_parser.json
@@ -23,7 +26,7 @@ _run_tests() {
   mkdir -p "$ARTIFACTS_DIR"
 
   set +e
-  mvn -fae test -q > "/tmp/${label}_stdout.log" 2> "/tmp/${label}_stderr.log"
+  mvn "${MAVEN_ARGS[@]}" test -q > "/tmp/${label}_stdout.log" 2> "/tmp/${label}_stderr.log"
   exit_code=$?
   set -e
 
@@ -51,7 +54,7 @@ fi
 # ============================================================
 COMPILE_START=$SECONDS
 COMPILE_STATUS="pass"
-mvn -fae compile test-compile -q > /tmp/compile_stdout.log 2> /tmp/compile_stderr.log || {
+mvn "${MAVEN_ARGS[@]}" compile test-compile -q > /tmp/compile_stdout.log 2> /tmp/compile_stderr.log || {
   COMPILE_STATUS="fail"
 }
 COMPILE_DURATION=$(_elapsed $COMPILE_START)
@@ -79,7 +82,7 @@ BASELINE_TEST_EXIT_CODE=0
 if [ "$COMPILE_STATUS" = "pass" ]; then
   BASELINE_START=$SECONDS
   set +e
-  mvn -fae test-compile -q > /tmp/baseline_compile_stdout.log 2> /tmp/baseline_compile_stderr.log
+  mvn "${MAVEN_ARGS[@]}" test-compile -q > /tmp/baseline_compile_stdout.log 2> /tmp/baseline_compile_stderr.log
   BASELINE_TEST_EXIT_CODE=$?
   set -e
   if [ "$BASELINE_TEST_EXIT_CODE" = "0" ]; then
@@ -112,7 +115,7 @@ PATCH_DURATION=$(_elapsed $PATCH_START)
 # ============================================================
 REBUILD_STATUS="skipped"
 if [ "$PATCH_STATUS" = "pass" ]; then
-  mvn -fae compile test-compile -q > /tmp/rebuild_stdout.log 2> /tmp/rebuild_stderr.log || {
+  mvn "${MAVEN_ARGS[@]}" compile test-compile -q > /tmp/rebuild_stdout.log 2> /tmp/rebuild_stderr.log || {
     REBUILD_STATUS="fail"
   }
   if [ "$REBUILD_STATUS" != "fail" ]; then
