@@ -10,6 +10,8 @@ import com.piggymetrics.statistics.repository.DataPointRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -39,8 +41,10 @@ public class StatisticsServiceImpl implements StatisticsService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Cacheable(value = "statisticsData", key = "#accountName")
 	public List<DataPoint> findByAccountName(String accountName) {
 		Assert.hasLength(accountName);
+		log.debug("findByAccountName called for account: {} - fetching from database", accountName);
 		return repository.findByIdAccount(accountName);
 	}
 
@@ -48,6 +52,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@CacheEvict(value = "statisticsData", key = "#accountName")
 	public DataPoint save(String accountName, Account account) {
 
 		Instant instant = LocalDate.now().atStartOfDay()
