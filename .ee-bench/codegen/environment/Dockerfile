@@ -10,6 +10,7 @@ RUN apt-get update && \
     wget \
     python3 \
     python3-pip \
+    maven \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR {{ instance.project_root }}
@@ -18,9 +19,8 @@ RUN git init && \
     git fetch origin --depth 1 {{ instance.base_commit }} && \
     git reset --hard FETCH_HEAD
 
-# Make mvnw executable and pre-fetch dependencies
-RUN chmod +x ./mvnw && \
-    ./mvnw dependency:go-offline -q
+# Verify Maven is available; dependencies resolve during evaluation.
+RUN mvn -version
 
 LABEL ee-bench.type="codegen"
 LABEL ee-bench.version="1.0"
