@@ -5,7 +5,11 @@
   "jvm_version": "17",
   "build_system": "maven",
   "expected": {
-    "fail_to_pass": [],
+    "fail_to_pass": [
+      "notification-service:com.piggymetrics.notification.NotificationServiceShouldUseSpringBoot22Test",
+      "auth-service:com.piggymetrics.auth.AuthServiceShouldUseSpringBoot22Test",
+      "account-service:com.piggymetrics.account.AccountServiceShouldUseSpringBoot22Test"
+    ],
     "pass_to_pass": []
   },
   "environment": {
