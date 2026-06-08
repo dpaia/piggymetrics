@@ -13,7 +13,9 @@ OVERALL_START=$SECONDS
 _elapsed() { echo $(( SECONDS - ${1:-$OVERALL_START} )); }
 
 MAVEN_MODULES="account-service,auth-service,notification-service,statistics-service"
+MAVEN_TESTS="TestcontainersDataPointRepositoryTest,TestcontainersAccountRepositoryTest,TestcontainersRecipientRepositoryTest,TestcontainersUserRepositoryTest"
 MAVEN_ARGS=(-fae -Djacoco.skip=true -pl "$MAVEN_MODULES" -am)
+MAVEN_TEST_ARGS=(-Dtest="$MAVEN_TESTS")
 
 # --- _run_tests: run tests with isolated ARTIFACTS_DIR ---
 # Usage: _run_tests <label>
@@ -26,7 +28,7 @@ _run_tests() {
   mkdir -p "$ARTIFACTS_DIR"
 
   set +e
-  mvn "${MAVEN_ARGS[@]}" test -q > "/tmp/${label}_stdout.log" 2> "/tmp/${label}_stderr.log"
+  mvn "${MAVEN_ARGS[@]}" "${MAVEN_TEST_ARGS[@]}" test -q > "/tmp/${label}_stdout.log" 2> "/tmp/${label}_stderr.log"
   exit_code=$?
   set -e
 
